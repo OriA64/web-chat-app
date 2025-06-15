@@ -81,24 +81,12 @@
         const usersRef = database.ref('users');
         let nickname = '';
 
-        // Debug function to show Firebase operations
-        function debugLog(message) {
-            console.log(message);
-            const debugDiv = document.createElement('div');
-            debugDiv.style.color = '#666';
-            debugDiv.style.fontSize = '12px';
-            debugDiv.textContent = message;
-            document.getElementById('messages').insertBefore(debugDiv, document.getElementById('messages').firstChild);
-        }
-
         // Handle nickname registration
         function registerNickname() {
             nickname = document.getElementById('nickname-input').value;
             if (nickname.trim()) {
-                debugLog(`Registering nickname: ${nickname}`);
                 usersRef.push({ nickname: nickname })
                     .then(() => {
-                        debugLog('Nickname registered successfully');
                         document.getElementById('nickname-section').style.display = 'none';
                         document.getElementById('chat-section').style.display = 'block';
                         // Load existing messages
@@ -110,7 +98,7 @@
                         });
                     })
                     .catch(error => {
-                        debugLog(`Error registering nickname: ${error}`);
+                        console.error(`Error registering nickname: ${error}`);
                     });
             }
         }
@@ -118,7 +106,6 @@
         // Listen for new messages
         messagesRef.on('child_added', function(data) {
             const message = data.val();
-            debugLog(`Received message from ${message.nickname}: ${message.text}`);
             addMessage(`${message.nickname}: ${message.text}`, message.nickname === nickname ? 'user' : 'other');
         });
 
@@ -127,18 +114,16 @@
             const messageInput = document.getElementById('message-input');
             const messageText = messageInput.value.trim();
             if (messageText) {
-                debugLog(`Sending message: ${messageText}`);
                 messagesRef.push({
                     nickname: nickname,
                     text: messageText,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 })
                 .then(() => {
-                    debugLog('Message sent successfully');
                     messageInput.value = '';
                 })
                 .catch(error => {
-                    debugLog(`Error sending message: ${error}`);
+                    console.error(`Error sending message: ${error}`);
                 });
             }
         }
