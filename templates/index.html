@@ -44,11 +44,29 @@
         }
         
         .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 10px;
+            margin: 15px 0;
+            padding: 8px;
+            border-radius: 15px;
             max-width: 80%;
             word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .message-content {
+            margin: 0;
+            padding: 8px;
+            border-radius: 10px;
+        }
+        
+        .message-timestamp {
+            font-size: 0.8em;
+            color: #666;
+            text-align: right;
+            margin: 0;
+            padding: 2px 8px;
+            border-radius: 5px;
         }
         
         .user-message {
@@ -60,6 +78,24 @@
         .other-message {
             background-color: #e9ecef;
             margin-right: auto;
+        }
+        
+        .user-message .message-content {
+            background-color: #0056b3;
+        }
+        
+        .user-message .message-timestamp {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .other-message .message-content {
+            background-color: #e9ecef;
+        }
+        
+        .other-message .message-timestamp {
+            background-color: #dee2e6;
+            color: #666;
         }
         
         #nickname-input, #message-input {
@@ -202,12 +238,36 @@
             }
         }
 
+        // Format timestamp in local time
+        function formatLocalTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true 
+            });
+        }
+
         // Add message to chat
-        function addMessage(message, type) {
+        function addMessage(messageData, type) {
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
-            messageDiv.textContent = message;
+
+            // Create message content
+            const messageContent = document.createElement('div');
+            messageContent.textContent = messageData.text;
+            messageContent.className = 'message-content';
+
+            // Create timestamp
+            const timestampDiv = document.createElement('div');
+            timestampDiv.textContent = formatLocalTime(messageData.timestamp);
+            timestampDiv.className = 'message-timestamp';
+
+            // Add both to message div
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(timestampDiv);
+
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
@@ -216,6 +276,31 @@
                 setTimeout(() => {
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 }, 100);
+            }
+        }
+
+        // Listen for new messages
+        messagesRef.on('child_added', function(data) {
+            const message = data.val();
+            addMessage(message, message.nickname === nickname ? 'user' : 'other');
+        });
+
+        // Send message
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                messagesRef.push({
+                    nickname: nickname,
+                    text: messageText,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                })
+                .then(() => {
+                    messageInput.value = '';
+                })
+                .catch(error => {
+                    console.error(`Error sending message: ${error}`);
+                });
             }
         }
 
