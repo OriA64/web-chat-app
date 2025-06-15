@@ -1,0 +1,10 @@
+{
+  "name": "web-chat-app",
+  "version": "1.0.0",
+  "description": "A simple web chat application",
+  "main": "index.js",
+  "scripts": {
+    "start": "python app.py",
+    "build": "echo 'Nothing to build'"
+  }
+}

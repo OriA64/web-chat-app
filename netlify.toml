@@ -1,0 +1,6 @@
+[build]
+  command = "echo 'Building...'
+  publish = "templates"  # This tells Netlify where to find our HTML files
+
+[build.environment]
+  PYTHONPATH = "."  # Make sure Python can find our modules

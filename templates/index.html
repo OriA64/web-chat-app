@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Chat</title>
+    <style>
+        #chat-container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 800px;
+        }
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .user-message {
+            background-color: #e6f3ff;
+        }
+        #nickname-input, #message-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        #send-button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h2>Web Chat</h2>
+        <div id="nickname-section">
+            <input type="text" id="nickname-input" placeholder="Enter your nickname">
+            <button onclick="registerNickname()">Join Chat</button>
+        </div>
+        <div id="chat-section" style="display: none;">
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button id="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io();
+        var nickname = '';
+
+        // Handle connection
+        socket.on('connected', function(data) {
+            console.log('Connected to server');
+        });
+
+        // Handle nickname registration
+        function registerNickname() {
+            nickname = document.getElementById('nickname-input').value;
+            if (nickname.trim()) {
+                socket.emit('register_nickname', { nickname: nickname });
+                document.getElementById('nickname-section').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+            }
+        }
+
+        // Handle nickname registration response
+        socket.on('nickname_registered', function(data) {
+            nickname = data.nickname;
+        });
+
+        // Handle user joining
+        socket.on('user_joined', function(data) {
+            addMessage(`${data.nickname} joined the chat!`, 'system');
+        });
+
+        // Handle sending message
+        function sendMessage() {
+            var message = document.getElementById('message-input').value;
+            if (message.trim()) {
+                socket.emit('send_message', { message: message });
+                document.getElementById('message-input').value = '';
+            }
+        }
+
+        // Handle receiving message
+        socket.on('receive_message', function(data) {
+            addMessage(`${data.nickname}: ${data.message}`, data.nickname === nickname ? 'user' : 'other');
+        });
+
+        // Add message to chat
+        function addMessage(message, type) {
+            var messagesDiv = document.getElementById('messages');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type === 'user' ? 'user-message' : ''}`;
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Send message on Enter key
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
