@@ -57,13 +57,13 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script>
         var socket = io();
         var nickname = '';
 
         // Handle connection
-        socket.on('connected', function(data) {
+        socket.on('connect', function() {
             console.log('Connected to server');
         });
 
@@ -80,10 +80,12 @@
         // Handle nickname registration response
         socket.on('nickname_registered', function(data) {
             nickname = data.nickname;
+            console.log('Nickname registered:', nickname);
         });
 
         // Handle user joining
         socket.on('user_joined', function(data) {
+            console.log('User joined:', data.nickname);
             addMessage(`${data.nickname} joined the chat!`, 'system');
         });
 
@@ -98,6 +100,7 @@
 
         // Handle receiving message
         socket.on('receive_message', function(data) {
+            console.log('Received message:', data);
             addMessage(`${data.nickname}: ${data.message}`, data.nickname === nickname ? 'user' : 'other');
         });
 

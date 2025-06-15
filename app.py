@@ -15,7 +15,7 @@ def index():
 
 @socketio.on('connect')
 def handle_connect():
-    emit('connected', {'message': 'Connected to chat server'})
+    print('Client connected')
 
 @socketio.on('register_nickname')
 def handle_nickname(data):
