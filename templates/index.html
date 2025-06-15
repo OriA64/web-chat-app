@@ -160,7 +160,7 @@
             <input type="text" id="nickname-input" placeholder="Enter your nickname">
             <button onclick="registerNickname()">Join Chat</button>
         </div>
-        <div id="chat-section" style="display: none;">
+        <div id="chat-section">
             <div id="messages"></div>
             <input type="text" id="message-input" placeholder="Type your message...">
             <button id="send-button" onclick="sendMessage()">Send</button>
@@ -203,7 +203,7 @@
                         messagesRef.once('value', snapshot => {
                             snapshot.forEach(childSnapshot => {
                                 const message = childSnapshot.val();
-                                addMessage(`${message.nickname}: ${message.text}`, message.nickname === nickname ? 'user' : 'other');
+                                addMessage(message, message.nickname === nickname ? 'user' : 'other');
                             });
                         });
                     })
@@ -212,6 +212,12 @@
                     });
             }
         }
+
+        // Show nickname section initially
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('nickname-section').style.display = 'block';
+            document.getElementById('chat-section').style.display = 'none';
+        });
 
         // Listen for new messages
         messagesRef.on('child_added', function(data) {
