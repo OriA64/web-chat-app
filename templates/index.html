@@ -52,6 +52,14 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            position: relative;
+        }
+        
+        .message-header {
+            font-weight: bold;
+            margin: 0;
+            padding: 5px 8px;
+            border-radius: 8px;
         }
         
         .message-content {
@@ -67,6 +75,9 @@
             margin: 0;
             padding: 2px 8px;
             border-radius: 5px;
+            position: absolute;
+            bottom: -25px;
+            right: 8px;
         }
         
         .user-message {
@@ -267,6 +278,11 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
 
+            // Create message header with nickname
+            const messageHeader = document.createElement('div');
+            messageHeader.textContent = `${messageData.nickname}:`;
+            messageHeader.className = 'message-header';
+
             // Create message content
             const messageContent = document.createElement('div');
             messageContent.textContent = messageData.text;
@@ -277,7 +293,8 @@
             timestampDiv.textContent = formatLocalTime(messageData.timestamp);
             timestampDiv.className = 'message-timestamp';
 
-            // Add both to message div
+            // Add elements to message div
+            messageDiv.appendChild(messageHeader);
             messageDiv.appendChild(messageContent);
             messageDiv.appendChild(timestampDiv);
 
