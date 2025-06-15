@@ -50,35 +50,29 @@
             max-width: 80%;
             word-wrap: break-word;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .message-header {
-            display: flex;
-            justify-content: space-between;
+            flex-direction: row;
             align-items: center;
-            margin: 0;
-            padding: 5px 8px;
-            border-radius: 8px;
+            gap: 10px;
         }
         
         .message-nickname {
             font-weight: bold;
+            margin-right: 5px;
         }
         
         .message-timestamp {
             font-size: 0.8em;
             color: #666;
-            margin: 0;
+            margin-left: auto;
             padding: 2px 8px;
             border-radius: 5px;
         }
         
         .message-content {
             margin: 0;
-            padding: 8px;
-            border-radius: 10px;
+            padding: 5px;
+            flex: 1;
+            word-break: break-word;
         }
         
         .user-message {
@@ -280,32 +274,25 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
 
-            // Create message header container
-            const messageHeader = document.createElement('div');
-            messageHeader.className = 'message-header';
-
             // Create nickname element
             const nicknameSpan = document.createElement('span');
             nicknameSpan.textContent = `${messageData.nickname}:`;
             nicknameSpan.className = 'message-nickname';
+
+            // Create message content
+            const messageContent = document.createElement('span');
+            messageContent.textContent = messageData.text;
+            messageContent.className = 'message-content';
 
             // Create timestamp
             const timestampSpan = document.createElement('span');
             timestampSpan.textContent = formatLocalTime(messageData.timestamp);
             timestampSpan.className = 'message-timestamp';
 
-            // Add nickname and timestamp to header
-            messageHeader.appendChild(nicknameSpan);
-            messageHeader.appendChild(timestampSpan);
-
-            // Create message content
-            const messageContent = document.createElement('div');
-            messageContent.textContent = messageData.text;
-            messageContent.className = 'message-content';
-
-            // Add elements to message div
-            messageDiv.appendChild(messageHeader);
+            // Add all elements to message div
+            messageDiv.appendChild(nicknameSpan);
             messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(timestampSpan);
 
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
