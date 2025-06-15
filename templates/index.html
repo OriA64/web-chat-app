@@ -235,10 +235,15 @@
         </div>
         <div id="chat-section">
             <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type your message...">
-            <button id="send-button" onclick="sendMessage()">Send</button>
-            <button id="clear-button" onclick="clearChat()">Clear Chat</button>
-        </div>
+            <div class="message-input-container">
+                <input type="text" id="message-input" placeholder="Type your message...">
+                <input type="file" id="image-input" accept="image/*" style="display: none;">
+                <label for="image-input" class="image-upload-button">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/picture.png" alt="Upload image" style="width: 20px; height: 20px;">
+                </label>
+                <button id="send-button" onclick="sendMessage()">Send</button>
+                <button id="clear-button" onclick="clearChat()">Clear Chat</button>
+            </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -296,7 +301,7 @@
         // Listen for new messages
         messagesRef.on('child_added', function(data) {
             const message = data.val();
-            addMessage(`${message.nickname}: ${message.text}`, message.nickname === nickname ? 'user' : 'other');
+            addMessage(message, message.nickname === nickname ? 'user' : 'other');
         });
 
         // Send message
@@ -385,6 +390,29 @@
             }
         });
 
+        // Handle image upload
+        document.getElementById('image-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Image = e.target.result;
+                    messagesRef.push({
+                        nickname: nickname,
+                        image: base64Image,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    })
+                    .then(() => {
+                        document.getElementById('image-input').value = '';
+                    })
+                    .catch(error => {
+                        console.error(`Error sending image: ${error}`);
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         // Send message
         function sendMessage() {
             const messageInput = document.getElementById('message-input');
@@ -404,6 +432,42 @@
             .catch(error => {
                 console.error(`Error sending message: ${error}`);
             });
+        }
+
+        // Add message to chat
+        function addMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
+
+            // Create header
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'message-header';
+            const nicknameSpan = document.createElement('span');
+            nicknameSpan.className = 'message-nickname';
+            nicknameSpan.textContent = message.nickname;
+            const timestampSpan = document.createElement('span');
+            timestampSpan.className = 'message-timestamp';
+            timestampSpan.textContent = message.timestamp;
+            headerDiv.appendChild(nicknameSpan);
+            headerDiv.appendChild(timestampSpan);
+            messageDiv.appendChild(headerDiv);
+
+            // Add content
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            if (message.text) {
+                contentDiv.textContent = message.text;
+            } else if (message.image) {
+                const img = document.createElement('img');
+                img.className = 'message-image';
+                img.src = message.image;
+                contentDiv.appendChild(img);
+            }
+            messageDiv.appendChild(contentDiv);
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
         // Clear chat
