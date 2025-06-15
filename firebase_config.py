@@ -6,7 +6,7 @@ load_dotenv()
 FIREBASE_CONFIG = {
     "apiKey": "AIzaSyAz6iCRIrPzzuN0_sgk7aEGLAwri-ZRbXk",
     "authDomain": "chat-test-8eca4.firebaseapp.com",
-    "databaseURL": "https://chat-test-8eca4.firebaseio.com",
+    "databaseURL": "https://chat-test-8eca4-default-rtdb.firebaseio.com",
     "projectId": "chat-test-8eca4",
     "storageBucket": "chat-test-8eca4.firebasestorage.app",
     "messagingSenderId": "1045762022628",

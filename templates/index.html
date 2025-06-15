@@ -66,7 +66,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyAz6iCRIrPzzuN0_sgk7aEGLAwri-ZRbXk",
             authDomain: "chat-test-8eca4.firebaseapp.com",
-            databaseURL: "https://chat-test-8eca4.firebaseio.com",
+            databaseURL: "https://chat-test-8eca4-default-rtdb.firebaseio.com",
             projectId: "chat-test-8eca4",
             storageBucket: "chat-test-8eca4.firebasestorage.app",
             messagingSenderId: "1045762022628",
@@ -81,19 +81,44 @@
         const usersRef = database.ref('users');
         let nickname = '';
 
+        // Debug function to show Firebase operations
+        function debugLog(message) {
+            console.log(message);
+            const debugDiv = document.createElement('div');
+            debugDiv.style.color = '#666';
+            debugDiv.style.fontSize = '12px';
+            debugDiv.textContent = message;
+            document.getElementById('messages').insertBefore(debugDiv, document.getElementById('messages').firstChild);
+        }
+
         // Handle nickname registration
         function registerNickname() {
             nickname = document.getElementById('nickname-input').value;
             if (nickname.trim()) {
-                usersRef.push({ nickname: nickname });
-                document.getElementById('nickname-section').style.display = 'none';
-                document.getElementById('chat-section').style.display = 'block';
+                debugLog(`Registering nickname: ${nickname}`);
+                usersRef.push({ nickname: nickname })
+                    .then(() => {
+                        debugLog('Nickname registered successfully');
+                        document.getElementById('nickname-section').style.display = 'none';
+                        document.getElementById('chat-section').style.display = 'block';
+                        // Load existing messages
+                        messagesRef.once('value', snapshot => {
+                            snapshot.forEach(childSnapshot => {
+                                const message = childSnapshot.val();
+                                addMessage(`${message.nickname}: ${message.text}`, message.nickname === nickname ? 'user' : 'other');
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        debugLog(`Error registering nickname: ${error}`);
+                    });
             }
         }
 
         // Listen for new messages
         messagesRef.on('child_added', function(data) {
             const message = data.val();
+            debugLog(`Received message from ${message.nickname}: ${message.text}`);
             addMessage(`${message.nickname}: ${message.text}`, message.nickname === nickname ? 'user' : 'other');
         });
 
@@ -102,12 +127,19 @@
             const messageInput = document.getElementById('message-input');
             const messageText = messageInput.value.trim();
             if (messageText) {
+                debugLog(`Sending message: ${messageText}`);
                 messagesRef.push({
                     nickname: nickname,
                     text: messageText,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
+                })
+                .then(() => {
+                    debugLog('Message sent successfully');
+                    messageInput.value = '';
+                })
+                .catch(error => {
+                    debugLog(`Error sending message: ${error}`);
                 });
-                messageInput.value = '';
             }
         }
 
