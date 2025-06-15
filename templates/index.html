@@ -176,6 +176,23 @@
             transition: background-color 0.3s;
         }
         
+        #clear-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        #clear-button:hover {
+            background-color: #ff3333;
+        }
+        
         #send-button:hover {
             background-color: #0056b3;
         }
@@ -220,6 +237,7 @@
             <div id="messages"></div>
             <input type="text" id="message-input" placeholder="Type your message...">
             <button id="send-button" onclick="sendMessage()">Send</button>
+            <button id="clear-button" onclick="clearChat()">Clear Chat</button>
         </div>
     </div>
 
@@ -386,6 +404,20 @@
             .catch(error => {
                 console.error(`Error sending message: ${error}`);
             });
+        }
+
+        // Clear chat
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat?')) {
+                messagesRef.remove()
+                    .then(() => {
+                        const messagesDiv = document.getElementById('messages');
+                        messagesDiv.innerHTML = '';
+                    })
+                    .catch(error => {
+                        console.error(`Error clearing chat: ${error}`);
+                    });
+            }
         }
 
         // Send message on Enter key
