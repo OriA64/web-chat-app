@@ -57,57 +57,63 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
-    <script>
-        var socket = io();
-        var nickname = '';
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-        // Handle connection
-        socket.on('connect', function() {
-            console.log('Connected to server');
-        });
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const messagesRef = database.ref('messages');
+        const usersRef = database.ref('users');
+        let nickname = '';
 
         // Handle nickname registration
         function registerNickname() {
             nickname = document.getElementById('nickname-input').value;
             if (nickname.trim()) {
-                socket.emit('register_nickname', { nickname: nickname });
+                usersRef.push({ nickname: nickname });
                 document.getElementById('nickname-section').style.display = 'none';
                 document.getElementById('chat-section').style.display = 'block';
             }
         }
 
-        // Handle nickname registration response
-        socket.on('nickname_registered', function(data) {
-            nickname = data.nickname;
-            console.log('Nickname registered:', nickname);
+        // Listen for new messages
+        messagesRef.on('child_added', function(data) {
+            const message = data.val();
+            addMessage(`${message.nickname}: ${message.text}`, message.nickname === nickname ? 'user' : 'other');
         });
 
-        // Handle user joining
-        socket.on('user_joined', function(data) {
-            console.log('User joined:', data.nickname);
-            addMessage(`${data.nickname} joined the chat!`, 'system');
-        });
-
-        // Handle sending message
+        // Send message
         function sendMessage() {
-            var message = document.getElementById('message-input').value;
-            if (message.trim()) {
-                socket.emit('send_message', { message: message });
-                document.getElementById('message-input').value = '';
+            const messageInput = document.getElementById('message-input');
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                messagesRef.push({
+                    nickname: nickname,
+                    text: messageText,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                messageInput.value = '';
             }
         }
 
-        // Handle receiving message
-        socket.on('receive_message', function(data) {
-            console.log('Received message:', data);
-            addMessage(`${data.nickname}: ${data.message}`, data.nickname === nickname ? 'user' : 'other');
-        });
-
         // Add message to chat
         function addMessage(message, type) {
-            var messagesDiv = document.getElementById('messages');
-            var messageDiv = document.createElement('div');
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : ''}`;
             messageDiv.textContent = message;
             messagesDiv.appendChild(messageDiv);

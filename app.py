@@ -1,35 +1,36 @@
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit
+import firebase_admin
+from firebase_admin import credentials, db
 import os
+from firebase_config import FIREBASE_CONFIG
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
-socketio = SocketIO(app)
 
-# Store connected clients and their nicknames
-connected_clients = {}
+# Initialize Firebase
+cred = credentials.Certificate('path/to/serviceAccountKey.json')
+firebase_admin.initialize_app(cred, {
+    'databaseURL': FIREBASE_CONFIG['databaseURL']
+})
+
+# Reference to the messages in Firebase
+messages_ref = db.reference('messages')
+users_ref = db.reference('users')
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@socketio.on('connect')
-def handle_connect():
-    print('Client connected')
+@app.route('/messages')
+def get_messages():
+    messages = messages_ref.get() or []
+    return {'messages': messages}
 
-@socketio.on('register_nickname')
-def handle_nickname(data):
-    nickname = data['nickname']
-    connected_clients[request.sid] = nickname
-    emit('nickname_registered', {'nickname': nickname})
-    emit('user_joined', {'nickname': nickname}, broadcast=True)
-
-@socketio.on('send_message')
-def handle_message(data):
-    message = data['message']
-    nickname = connected_clients[request.sid]
-    emit('receive_message', {'nickname': nickname, 'message': message}, broadcast=True)
+@app.route('/users')
+def get_users():
+    users = users_ref.get() or []
+    return {'users': users}
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=port)
