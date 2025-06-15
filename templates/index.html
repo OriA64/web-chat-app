@@ -246,6 +246,9 @@
 
         // Format timestamp in local time
         function formatLocalTime(timestamp) {
+            if (!timestamp) {
+                return '';
+            }
             const date = new Date(timestamp);
             return date.toLocaleTimeString([], { 
                 hour: '2-digit', 
@@ -256,6 +259,10 @@
 
         // Add message to chat
         function addMessage(messageData, type) {
+            if (!messageData || !messageData.text) {
+                return;
+            }
+
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
@@ -288,26 +295,30 @@
         // Listen for new messages
         messagesRef.on('child_added', function(data) {
             const message = data.val();
-            addMessage(message, message.nickname === nickname ? 'user' : 'other');
+            if (message) {
+                addMessage(message, message.nickname === nickname ? 'user' : 'other');
+            }
         });
 
         // Send message
         function sendMessage() {
             const messageInput = document.getElementById('message-input');
             const messageText = messageInput.value.trim();
-            if (messageText) {
-                messagesRef.push({
-                    nickname: nickname,
-                    text: messageText,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                })
-                .then(() => {
-                    messageInput.value = '';
-                })
-                .catch(error => {
-                    console.error(`Error sending message: ${error}`);
-                });
+            if (!messageText) {
+                return;
             }
+
+            messagesRef.push({
+                nickname: nickname,
+                text: messageText,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            })
+            .then(() => {
+                messageInput.value = '';
+            })
+            .catch(error => {
+                console.error(`Error sending message: ${error}`);
+            });
         }
 
         // Send message on Enter key
