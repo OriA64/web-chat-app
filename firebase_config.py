@@ -4,11 +4,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 FIREBASE_CONFIG = {
-    "apiKey": "YOUR_API_KEY",
-    "authDomain": "YOUR_PROJECT_ID.firebaseapp.com",
-    "databaseURL": "https://YOUR_PROJECT_ID.firebaseio.com",
-    "projectId": "YOUR_PROJECT_ID",
-    "storageBucket": "YOUR_PROJECT_ID.appspot.com",
-    "messagingSenderId": "YOUR_SENDER_ID",
-    "appId": "YOUR_APP_ID"
+    "apiKey": "AIzaSyAz6iCRIrPzzuN0_sgk7aEGLAwri-ZRbXk",
+    "authDomain": "chat-test-8eca4.firebaseapp.com",
+    "databaseURL": "https://chat-test-8eca4.firebaseio.com",
+    "projectId": "chat-test-8eca4",
+    "storageBucket": "chat-test-8eca4.firebasestorage.app",
+    "messagingSenderId": "1045762022628",
+    "appId": "1:1045762022628:web:30f7860a74771d5ad120f1",
+    "measurementId": "G-636S5DJM8P"
 }
