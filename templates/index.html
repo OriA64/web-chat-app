@@ -402,12 +402,17 @@
         }
 
         // Listen for new messages
-        let lastMessageId = null;
+        // Track message IDs to prevent duplicates
+        const messageIds = new Set();
+
         messagesRef.on('child_added', function(data) {
             const message = data.val();
-            if (message && data.key !== lastMessageId) {
+            const messageId = data.key;
+            
+            // Only add message if we haven't seen it before
+            if (message && !messageIds.has(messageId)) {
                 addMessage(message, message.nickname === nickname ? 'user' : 'other');
-                lastMessageId = data.key;
+                messageIds.add(messageId);
             }
         });
 
@@ -423,12 +428,15 @@
                         image: base64Image,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     };
-                    
-                    // First add to UI
-                    addMessage(message, 'user');
-                    
-                    // Then send to Firebase
+
+                    // Send to Firebase first to get a unique ID
                     messagesRef.push(message)
+                        .then((data) => {
+                            // Add to UI with the Firebase-generated ID
+                            addMessage(message, 'user');
+                            messageIds.add(data.key);
+                            document.getElementById('image-input').value = '';
+                        })
                         .catch(error => {
                             console.error(`Error sending image: ${error}`);
                         });
@@ -445,12 +453,21 @@
                 return;
             }
 
+            // Send to Firebase first to get a unique ID
             messagesRef.push({
                 nickname: nickname,
                 text: messageText,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             })
-            .then(() => {
+            .then((data) => {
+                // Add to UI with the Firebase-generated ID
+                const message = {
+                    nickname: nickname,
+                    text: messageText,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+                addMessage(message, 'user');
+                messageIds.add(data.key);
                 messageInput.value = '';
             })
             .catch(error => {
