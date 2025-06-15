@@ -76,36 +76,38 @@
             padding: 2px 8px;
             border-radius: 5px;
             position: absolute;
-            bottom: -25px;
+            bottom: -40px; /* Increased spacing to prevent overlap */
             right: 8px;
+            z-index: 1; /* Ensure it stays above other messages */
         }
         
         .user-message {
-            background-color: #007bff;
-            color: white;
+            background-color: #a8d8ff; /* Soft blue */
+            color: #2c3e50;
             margin-left: auto;
         }
         
         .other-message {
-            background-color: #e9ecef;
+            background-color: #f5f7fa; /* Light gray */
             margin-right: auto;
         }
         
         .user-message .message-content {
-            background-color: #0056b3;
+            background-color: #85b7ff; /* Slightly darker blue */
+            color: #2c3e50;
         }
         
         .user-message .message-timestamp {
-            background-color: #0056b3;
-            color: white;
+            background-color: #85b7ff;
+            color: #2c3e50;
         }
         
         .other-message .message-content {
-            background-color: #e9ecef;
+            background-color: #f5f7fa;
         }
         
         .other-message .message-timestamp {
-            background-color: #dee2e6;
+            background-color: #e8ecef;
             color: #666;
         }
         
