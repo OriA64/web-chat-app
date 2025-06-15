@@ -50,59 +50,48 @@
             max-width: 80%;
             word-wrap: break-word;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            margin: 0;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background-color: #f0f2f5;
+            color: #2c3e50;
         }
         
         .message-nickname {
             font-weight: bold;
-            margin-right: 5px;
         }
         
         .message-timestamp {
             font-size: 0.8em;
             color: #666;
-            margin-left: auto;
             padding: 2px 8px;
             border-radius: 5px;
+            background-color: #e8ecef;
         }
         
         .message-content {
             margin: 0;
-            padding: 5px;
-            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f0f2f5;
+            color: #2c3e50;
             word-break: break-word;
         }
         
         .user-message {
-            background-color: #a8d8ff; /* Soft blue */
-            color: #2c3e50;
             margin-left: auto;
         }
         
         .other-message {
-            background-color: #f5f7fa; /* Light gray */
             margin-right: auto;
-        }
-        
-        .user-message .message-content {
-            background-color: #85b7ff; /* Slightly darker blue */
-            color: #2c3e50;
-        }
-        
-        .user-message .message-timestamp {
-            background-color: #85b7ff;
-            color: #2c3e50;
-        }
-        
-        .other-message .message-content {
-            background-color: #f5f7fa;
-        }
-        
-        .other-message .message-timestamp {
-            background-color: #e8ecef;
-            color: #666;
         }
         
         #nickname-input, #message-input {
@@ -274,25 +263,30 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
 
+            // Create header container
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+
             // Create nickname element
             const nicknameSpan = document.createElement('span');
             nicknameSpan.textContent = `${messageData.nickname}:`;
             nicknameSpan.className = 'message-nickname';
-
-            // Create message content
-            const messageContent = document.createElement('span');
-            messageContent.textContent = messageData.text;
-            messageContent.className = 'message-content';
+            messageHeader.appendChild(nicknameSpan);
 
             // Create timestamp
             const timestampSpan = document.createElement('span');
             timestampSpan.textContent = formatLocalTime(messageData.timestamp);
             timestampSpan.className = 'message-timestamp';
+            messageHeader.appendChild(timestampSpan);
 
-            // Add all elements to message div
-            messageDiv.appendChild(nicknameSpan);
+            // Create message content
+            const messageContent = document.createElement('div');
+            messageContent.textContent = messageData.text;
+            messageContent.className = 'message-content';
+
+            // Add elements to message div
+            messageDiv.appendChild(messageHeader);
             messageDiv.appendChild(messageContent);
-            messageDiv.appendChild(timestampSpan);
 
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
