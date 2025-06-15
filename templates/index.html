@@ -51,34 +51,34 @@
             word-wrap: break-word;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            position: relative;
+            gap: 8px;
         }
         
         .message-header {
-            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin: 0;
             padding: 5px 8px;
             border-radius: 8px;
+        }
+        
+        .message-nickname {
+            font-weight: bold;
+        }
+        
+        .message-timestamp {
+            font-size: 0.8em;
+            color: #666;
+            margin: 0;
+            padding: 2px 8px;
+            border-radius: 5px;
         }
         
         .message-content {
             margin: 0;
             padding: 8px;
             border-radius: 10px;
-        }
-        
-        .message-timestamp {
-            font-size: 0.8em;
-            color: #666;
-            text-align: right;
-            margin: 0;
-            padding: 2px 8px;
-            border-radius: 5px;
-            position: absolute;
-            bottom: -40px; /* Increased spacing to prevent overlap */
-            right: 8px;
-            z-index: 1; /* Ensure it stays above other messages */
         }
         
         .user-message {
@@ -280,25 +280,32 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'user' ? 'user-message' : 'other-message'}`;
 
-            // Create message header with nickname
+            // Create message header container
             const messageHeader = document.createElement('div');
-            messageHeader.textContent = `${messageData.nickname}:`;
             messageHeader.className = 'message-header';
+
+            // Create nickname element
+            const nicknameSpan = document.createElement('span');
+            nicknameSpan.textContent = `${messageData.nickname}:`;
+            nicknameSpan.className = 'message-nickname';
+
+            // Create timestamp
+            const timestampSpan = document.createElement('span');
+            timestampSpan.textContent = formatLocalTime(messageData.timestamp);
+            timestampSpan.className = 'message-timestamp';
+
+            // Add nickname and timestamp to header
+            messageHeader.appendChild(nicknameSpan);
+            messageHeader.appendChild(timestampSpan);
 
             // Create message content
             const messageContent = document.createElement('div');
             messageContent.textContent = messageData.text;
             messageContent.className = 'message-content';
 
-            // Create timestamp
-            const timestampDiv = document.createElement('div');
-            timestampDiv.textContent = formatLocalTime(messageData.timestamp);
-            timestampDiv.className = 'message-timestamp';
-
             // Add elements to message div
             messageDiv.appendChild(messageHeader);
             messageDiv.appendChild(messageContent);
-            messageDiv.appendChild(timestampDiv);
 
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
